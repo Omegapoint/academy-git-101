@@ -270,3 +270,35 @@ $ git log --oneline --graph main exercise-conflict
 ```
 
 The process had been the same with a merge, except that you had done `git merge --continue` instead. Both the rebase and the merge can also be aborted with the `--aborted` flag. Git would then return your working directory to the state you started from.
+
+## Force pushing after a rebase
+
+A rebase rewrites your commits, giving them new commit hashes. The remote branch still holds the original commits you pushed before rebasing, so your local branch is no longer a fast-forward of the remote — the two histories have diverged. Git rejects the push by default with a `! [rejected] ... (non-fast-forward)` error to protect you from accidentally discarding commits on the remote.
+
+To push a rebased branch you have to explicitly overwrite the remote history with `--force` (or its safer sibling `--force-with-lease`):
+
+```bash
+$ git push --force-with-lease origin my-branch
+```
+
+Never force-push to shared branches like `main` or `release-x` branches. Force-pushing is for branches you own, typically your own feature or topic branches.
+
+To get an understanding of force pushing, ask an AI chatbot the following:
+
+```
+What is the difference between git push `--force` and git push `--force-with-lease`? Give me a concrete scenario where `--force-with-lease` prevents data loss that `--force` would cause.
+```
+
+Then verify the answer against the official documentation:
+
+```bash
+$ man git-push      # search for "force-with-lease" with /force-with-lease
+```
+
+Specifically, check:
+
+- Does the chatbot correctly describe what "lease" refers to (the remote-tracking ref)?
+- Does the scenario it gives actually match how Git behaves — i.e. that `--force-with-lease` fails when the remote has moved since your last git fetch?
+- Does the chatbot mention that running `git fetch` immediately before `--force-with-lease` defeats the protection?
+
+If the chatbot's answer is missing or wrong on any of these, that's the lesson: AI explanations of Git are often almost right in ways that matter, but you have to verify them against the documentation and your own understanding.
